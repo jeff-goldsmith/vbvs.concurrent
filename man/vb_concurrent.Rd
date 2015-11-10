@@ -4,16 +4,23 @@
 \alias{vb_concurrent}
 \title{vb_concurrent}
 \usage{
-vb_concurrent(Y, X, Kt = 5, Kp = 2)
+vb_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
+  v1 = 100, standardized = FALSE)
 }
 \arguments{
-\item{Y}{matrix of functional responses}
+\item{formula}{formula for desired regression. should have form \code{ y ~ x1 + x2 + ... + x_k | t}, where \code{t} is the variable that parameterized observed functions}
 
-\item{X}{list of matrices, each of which contains the functional predictor for an individual subject}
+\item{id.var}{variable giving subject ID vector}
+
+\item{data}{optional data frame}
 
 \item{Kt}{number of spline basis functions for coefficients and FPCs}
 
 \item{Kp}{number of FPCs to estimate}
+
+\item{v1}{tuning parameter; normal slab variance}
+
+\item{standardized}{logical; are covariates already standardized?}
 }
 \description{
 Implements variational bayes for the linear functional concurrent model

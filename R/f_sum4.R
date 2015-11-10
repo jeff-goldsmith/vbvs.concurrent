@@ -11,14 +11,17 @@
 #' 
 #' @author Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' 
-f_sum4 = function(mu.q.c, sig.q.c, mu.q.bpsi, sig.q.bpsi, theta, obspts.mat){
+f_sum4 = function(mu.q.c, sig.q.c, mu.q.bpsi, sig.q.bpsi, theta, obspts.mat, subj.id){
   I = dim(mu.q.c)[1]
   kp = dim(mu.q.c)[2]
-  kt = dim(theta)[2]
+  kt = dim(theta)[1]
   ret.sum = matrix(0, 1, 1)
+  subjs = unique(subj.id)
   
   for(i in 1:I){
-    theta_i = t(theta)[,obspts.mat[i,]]
+    index = which(subj.id == subjs[i])
+    
+    theta_i = (theta[,index])
     temp = 
       f_trace(Theta_i = theta_i, Sig_q_Bpsi = sig.q.bpsi, Kp = kp, Kt = kt) %*% matrix(mu.q.c[i,], kp, 1) %*% matrix(mu.q.c[i,], 1, kp) +
       f_trace(Theta_i = theta_i, Sig_q_Bpsi = sig.q.bpsi, Kp = kp, Kt = kt) %*% sig.q.c[[i]] +

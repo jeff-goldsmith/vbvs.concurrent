@@ -4,10 +4,12 @@
 \alias{f_sum2}
 \title{Sum computation 2}
 \usage{
-f_sum2(y, fixef, mu.q.c, kt, theta)
+f_sum2(y, subj.id, fixef, mu.q.c, kt, theta)
 }
 \arguments{
 \item{y}{outcome matrix}
+
+\item{subj.id}{vector of subject ids}
 
 \item{fixef}{current estimate of fixed effects}
 

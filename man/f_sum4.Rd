@@ -4,7 +4,7 @@
 \alias{f_sum4}
 \title{Sum computation 2}
 \usage{
-f_sum4(mu.q.c, sig.q.c, mu.q.bpsi, sig.q.bpsi, theta, obspts.mat)
+f_sum4(mu.q.c, sig.q.c, mu.q.bpsi, sig.q.bpsi, theta, obspts.mat, subj.id)
 }
 \arguments{
 \item{mu.q.c}{current value of mu.q.c}

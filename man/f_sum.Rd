@@ -4,7 +4,7 @@
 \alias{f_sum}
 \title{Sum computation 1}
 \usage{
-f_sum(mu.q.c, sig.q.c, theta, obspts.mat)
+f_sum(mu.q.c, sig.q.c, theta, subj.id)
 }
 \arguments{
 \item{mu.q.c}{current value of mu.q.c}
@@ -13,7 +13,7 @@ f_sum(mu.q.c, sig.q.c, theta, obspts.mat)
 
 \item{theta}{spline basis}
 
-\item{obspts.mat}{matrix indicating the points on which data is observed}
+\item{subj.id}{vector of subject IDs}
 }
 \description{
 Internal function used compute a sum in FPCA-based covariance updates
