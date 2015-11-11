@@ -10,6 +10,8 @@
 #' @param v0 tuning parameter; normal spike variance
 #' @param v1 tuning parameter; normal slab variance
 #' @param standardized logical; are covariates already standardized?
+#' @param t.min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.
+#' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
 #' 
@@ -19,8 +21,9 @@
 #' @export
 #' 
 vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0 = 0.01, v1 = 100,
-                           standardized = FALSE){
+                           standardized = FALSE, t.min = NULL, t.max = NULL){
   
+  ## parse formula
   LHS = as.character(formula)[2]
   RHS = as.character(formula)[3]
   
@@ -38,15 +41,18 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   data.complete = model.frame(tf, data = data)
   
   Y = data.complete[LHS][,1]
-  
-  time = data.complete[time.var][,1]
-  Theta = t(bs(time, knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1,Kt - 2)], 
-               intercept=TRUE, degree=3))
-  
   subj.id = data.complete[id.var][,1]
   subjs = unique(subj.id)
   I = length(subjs)
   J = dim(data.complete)[1]
+  
+  ## construct theta matrix
+  time = data.complete[time.var][,1]
+  if(is.null(t.min)) {t.min = min(time)}
+  if(is.null(t.max)) {t.max = max(time)}
+  
+  Theta = t(bs(c(t.min, t.max, time), knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1,Kt - 2)], 
+               intercept=TRUE, degree=3))[,-(1:2)]
   
   formula.model = as.formula(paste0(LHS, "~", RHS))
   tf <- terms.formula(formula.model, specials = NULL)
@@ -266,9 +272,11 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   lambda.pm = temp$d
   
   ret = list(beta.cur, psi.cur, mu.q.gamma, mu.q.beta, lambda.pm, Yhat, sigeps.pm, pcaef.est, fixef.est, 
-             data.complete, data.model, formula, formula.model, time.var, id.var, Kt, Kp, standardized)
+             data.complete, data.model, formula, formula.model, time.var, id.var, Kt, Kp, standardized,
+             t.min, t.max)
   names(ret) = c("beta.pm", "psi.pm", "gamma.pm", "spline.coef.est", "lambda.pm", "Yhat", "sigeps.pm", "pcaef", "fixef",
-                 "data", "data.model", "formula", "formula.model", "time.var", "id.var", "Kt", "Kp", "standardized")
+                 "data", "data.model", "formula", "formula.model", "time.var", "id.var", "Kt", "Kp", "standardized",
+                 "t.min", "t.max")
   
   class(ret) = "concurFLM"
 

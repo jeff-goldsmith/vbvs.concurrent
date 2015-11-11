@@ -29,13 +29,13 @@ coef.concurFLM <- function(object, t.new = NULL) {
   
   if(is.null(t.new)) { t.new = t.original }
   
-  if(min(t.new) < min(t.original) | max(t.new) > max(t.original)){
-    stop("Specified domain extends beyond original domain")
+  if(min(t.new) < min(object$t.min) | max(t.new) > max(object$t.max)){
+    stop("Specified domain extends beyond domain on which model was originally estimated")
   }
 
   ## ensure that spline basis covers the same domain as the original; these points
   ## will be removed shortly
-  t.new = c(min(t.original), max(t.original), t.new)
+  t.new = c(object$t.min, object$t.max, t.new)
     
   Theta = t(bs(t.new, knots = quantile(t.original, probs = seq(0, 1, length = object$Kt - 2))[-c(1,object$Kt - 2)], 
                intercept=TRUE, degree=3))

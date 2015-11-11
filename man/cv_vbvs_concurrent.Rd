@@ -6,7 +6,7 @@
 \usage{
 cv_vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
   v0 = seq(0.01, 0.1, 0.01), v1 = 100, train.prop = 0.8, SEED = 1,
-  standardized = FALSE)
+  standardized = FALSE, t.min = NULL, t.max = NULL)
 }
 \arguments{
 \item{Kt}{number of spline basis functions for coefficients and FPCs}
@@ -22,6 +22,10 @@ cv_vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
 \item{SEED}{seed value, used to ensure reproducibility of the training split}
 
 \item{standardized}{logical; are covariates already standardized?}
+
+\item{t.min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.}
+
+\item{t.max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.}
 
 \item{Y}{matrix of functional responses}
 

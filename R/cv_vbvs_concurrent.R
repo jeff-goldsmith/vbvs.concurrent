@@ -12,10 +12,13 @@
 #' @param train.prop proportion of subjects to include in the training set
 #' @param SEED seed value, used to ensure reproducibility of the training split
 #' @param standardized logical; are covariates already standardized?
+#' @param t.min minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.
+#' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
 #' @export
-cv_vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0 = seq(0.01, .1, .01), v1 = 100, train.prop = .8, SEED = 1, standardized = FALSE){
+cv_vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0 = seq(0.01, .1, .01), v1 = 100, 
+                              train.prop = .8, SEED = 1, standardized = FALSE, t.min = NULL, t.max = NULL){
   
   OOS.sq.err = rep(NA, nrow = length(v0))
   outcome.var = as.character(form)[2]
@@ -30,7 +33,8 @@ cv_vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2,
   
   for(i.split in 1:length(v0)){
     cat(paste0(i.split, ". "))
-    fit.vbvs = vbvs_concurrent(formula = formula, id.var = id.var, data = data.train, Kt = Kt, Kp = Kp, v0 = v0[i.split], v1 = v1, standardized = standardized)
+    fit.vbvs = vbvs_concurrent(formula = formula, id.var = id.var, data = data.train, Kt = Kt, Kp = Kp, v0 = v0[i.split], v1 = v1, 
+                               standardized = standardized, t.min = t.min, t.max = t.max)
     fitted.test.vbvs = predict(fit.vbvs, data = data.test, standardized = standardized)
     OOS.sq.err[i.split] = mean((data.test[outcome.var] - fitted.test.vbvs)^2, na.rm = TRUE)
   }

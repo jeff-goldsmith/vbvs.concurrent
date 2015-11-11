@@ -5,7 +5,8 @@
 \title{vbvs_concurrent}
 \usage{
 vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
-  v0 = 0.01, v1 = 100, standardized = FALSE)
+  v0 = 0.01, v1 = 100, standardized = FALSE, t.min = NULL,
+  t.max = NULL)
 }
 \arguments{
 \item{formula}{formula for desired regression. should have form \code{ y ~ x1 + x2 + ... + x_k | t}, where \code{t} is the variable that parameterized observed functions}
@@ -23,6 +24,10 @@ vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
 \item{v1}{tuning parameter; normal slab variance}
 
 \item{standardized}{logical; are covariates already standardized?}
+
+\item{t.min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.}
+
+\item{t.max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minium observed value.}
 }
 \description{
 Implements variational bayes variable selection for the linear functional concurrent model
