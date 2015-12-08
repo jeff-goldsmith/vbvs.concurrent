@@ -23,28 +23,23 @@
 vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0 = 0.01, v1 = 100,
                            standardized = FALSE, t.min = NULL, t.max = NULL){
   
+  
   ## parse formula
   LHS = as.character(formula)[2]
   RHS = as.character(formula)[3]
   
   if(is.null(id.var)){ stop("Please specify the subject ID variable")}
   if(grep("|", RHS) == 0){ stop("Formula incorrectly specified; needs a '|' to indicate time parameter")}
-
+  
   time.var = strsplit(RHS, "|", fixed = TRUE)[[1]][2] %>% gsub(" ", "", x = ., fixed = TRUE)
   RHS = strsplit(RHS, "|", fixed = TRUE)[[1]][1]
   RHS.mod = paste(RHS, "+", time.var, "+", id.var)
   
   formula.temp = as.formula(paste0(LHS, "~", RHS.mod))
-
+  
   tf <- terms.formula(formula.temp, specials = NULL)
   trmstrings <- attr(tf, "term.labels")
   data.complete = model.frame(tf, data = data)
-  
-  Y = data.complete[LHS][,1]
-  subj.id = data.complete[id.var][,1]
-  subjs = unique(subj.id)
-  I = length(subjs)
-  J = dim(data.complete)[1]
   
   ## construct theta matrix
   time = data.complete[time.var][,1]
@@ -55,9 +50,11 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
                intercept=TRUE, degree=3))[,-(1:2)]
   
   formula.model = as.formula(paste0(LHS, "~", RHS))
+#  formula.model = as.formula(paste0(LHS, "~ 0+", RHS))
   tf <- terms.formula(formula.model, specials = NULL)
   trmstrings <- attr(tf, "term.labels")
   p = length(trmstrings) + 1
+#  p = length(trmstrings)
   mf_fixed = data.model <- model.frame(tf, data = data)
   
   ## normalize variables
@@ -65,10 +62,11 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
     cat("Standardizing Variables \n")
     
     knn.index = as.data.frame(t(knnx.index(time, time, k = round(length(time)*.2))))
-
-    for(trm in trmstrings){
-      covar.cur = mf_fixed[trm][,1]
     
+    for(trm in c(trmstrings)){
+#    for(trm in c(LHS, trmstrings)){
+      covar.cur = mf_fixed[trm][,1]
+      
       mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
       sq.resid = (covar.cur - mean.fit)^2
       
@@ -82,6 +80,12 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   
   data.model[id.var] = data.complete[id.var]
   data.model[time.var] = data.complete[time.var]
+  
+  Y = data.model[LHS][,1]
+  subj.id = data.model[id.var][,1]
+  subjs = unique(subj.id)
+  I = length(subjs)
+  J = dim(data.model)[1]
   
   ## construct Xstar
   cat("Constructing Xstar; doing data organization \n")
@@ -130,6 +134,7 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   for(k in 1:I){
     sigma.q.C[[k]] = diag(1, Kp)
   }
+  set.seed(1)
   mu.q.C = matrix(rnorm(I*Kp, 0, 1), I, Kp)
   
   mu.q.ltheta = digamma(Atheta + sum(mu.q.gamma)) - digamma(Atheta + Btheta + p)
@@ -143,7 +148,7 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   pcaef.est = rep(0, J)
   
   cat("Beginning Algorithm \n")
-  
+
   for(iter in 1:10){
     
     ###############################################################
@@ -184,7 +189,7 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
         mu.q.gamma[p.cur] = p1.div.p0/(1+p1.div.p0)
       }
     }
-    
+
     mu.q.dinv = kronecker(diag((1-mu.q.gamma)/v0 + mu.q.gamma/v1), diag(1, Kt, Kt))
     
     mu.q.ltheta = digamma(Atheta + sum(mu.q.gamma)) - digamma(Atheta + Btheta + p)
@@ -249,10 +254,12 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   
   ## get coefficient functions over a common grid
   rownames(beta.cur) = c("int", trmstrings)
+#  rownames(beta.cur) = c(trmstrings)
   beta.cur = t(beta.cur) %>% as.data.frame() %>%
     mutate(t = time) %>% 
     arrange(t) %>% unique() %>%
     subset(select= c("t", "int", trmstrings))
+#    subset(select= c("t", trmstrings))
   
   ## export fitted values
   Yhat = fixef.est + pcaef.est 

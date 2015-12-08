@@ -41,10 +41,12 @@ coef.concurFLM <- function(object, t.new = NULL) {
                intercept=TRUE, degree=3))
   beta.cur = t(object$spline.coef.est) %*% (Theta)
   rownames(beta.cur) = c("int", trmstrings)
+#  rownames(beta.cur) = trmstrings
   beta.cur = t(beta.cur) %>% as.data.frame() %>%
     slice(., -(1:2)) %>%
     mutate(t = t.new[-(1:2)]) %>% 
     subset(select= c("t", "int", trmstrings))
+#    subset(select= c("t", trmstrings))
   
   beta.cur
   

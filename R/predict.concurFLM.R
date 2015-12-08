@@ -58,9 +58,10 @@ predict.concurFLM <- function(object, data.new = NULL, standardized = FALSE) {
   
   ## multiply each coefficient by each observed value; sum to get fitted value
   fitted = mutate(data.new, int = 1) %>% subset(select = c("int", trmstrings)) %>% 
+#  fitted = data.new %>% subset(select = trmstrings) %>% 
     '*'(., subset(beta.hat, select = -c(t))) %>%
     apply(1, sum)
-  
+
   fitted 
   
 }

@@ -39,12 +39,6 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   trmstrings <- attr(tf, "term.labels")
   data.complete = model.frame(tf, data = data)
   
-  Y = data.complete[LHS][,1]
-  subj.id = data.complete[id.var][,1]
-  subjs = unique(subj.id)
-  I = length(subjs)
-  J = dim(data.complete)[1]
-  
   ## construct theta matrix
   time = data.complete[time.var][,1]
   if(is.null(t.min)) {t.min = min(time)}
@@ -54,9 +48,11 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
                intercept=TRUE, degree=3))[,-(1:2)]
   
   formula.model = as.formula(paste0(LHS, "~", RHS))
+#  formula.model = as.formula(paste0(LHS, "~ 0+", RHS))
   tf <- terms.formula(formula.model, specials = NULL)
   trmstrings <- attr(tf, "term.labels")
   p = length(trmstrings) + 1
+#  p = length(trmstrings)
   mf_fixed = data.model <- model.frame(tf, data = data)
   
   ## normalize variables
@@ -65,7 +61,8 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
     
     knn.index = as.data.frame(t(knnx.index(time, time, k = round(length(time)*.2))))
     
-    for(trm in trmstrings){
+    for(trm in c(trmstrings)){
+#    for(trm in c(LHS, trmstrings)){
       covar.cur = mf_fixed[trm][,1]
       
       mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
@@ -81,6 +78,12 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   
   data.model[id.var] = data.complete[id.var]
   data.model[time.var] = data.complete[time.var]
+  
+  Y = data.model[LHS][,1]
+  subj.id = data.model[id.var][,1]
+  subjs = unique(subj.id)
+  I = length(subjs)
+  J = dim(data.model)[1]
   
   ## construct Xstar
   cat("Constructing Xstar; doing data organization \n")
@@ -127,6 +130,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   for(k in 1:I){
     sigma.q.C[[k]] = diag(1, Kp)
   }
+  set.seed(1)
   mu.q.C = matrix(rnorm(I*Kp, 0, 1), I, Kp)
   
   b.q.lambda.Bpsi = rep(1, Kp)
@@ -229,10 +233,12 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
 
   ## get coefficient functions over a common grid
   rownames(beta.cur) = c("int", trmstrings)
+#  rownames(beta.cur) = c(trmstrings)
   beta.cur = t(beta.cur) %>% as.data.frame() %>%
     mutate(t = time) %>% 
     arrange(t) %>% unique() %>%
     subset(select= c("t", "int", trmstrings))
+#    subset(select= c("t", trmstrings))
   
   ## export fitted values
   Yhat = fixef.est + pcaef.est 
