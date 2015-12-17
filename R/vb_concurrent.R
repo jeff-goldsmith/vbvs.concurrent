@@ -47,12 +47,12 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   Theta = t(bs(c(t.min, t.max, time), knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1,Kt - 2)], 
                intercept=TRUE, degree=3))[,-(1:2)]
   
-  formula.model = as.formula(paste0(LHS, "~", RHS))
-#  formula.model = as.formula(paste0(LHS, "~ 0+", RHS))
+#  formula.model = as.formula(paste0(LHS, "~", RHS))
+  formula.model = as.formula(paste0(LHS, "~ 0+", RHS))
   tf <- terms.formula(formula.model, specials = NULL)
   trmstrings <- attr(tf, "term.labels")
-  p = length(trmstrings) + 1
-#  p = length(trmstrings)
+#  p = length(trmstrings) + 1
+  p = length(trmstrings)
   mf_fixed = data.model <- model.frame(tf, data = data)
   
   ## normalize variables
@@ -73,6 +73,16 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
       data.model[trm] = mf_fixed[trm] = (covar.cur - mean.fit) / sqrt(var.fit)
       cat(".")
     }
+    
+    for(trm in LHS){
+      covar.cur = mf_fixed[trm][,1]
+      
+      mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
+      
+      data.model[trm] = mf_fixed[trm] = (covar.cur - mean.fit)
+      cat(".")
+    }
+    
     cat("\n")
   }
   
@@ -232,13 +242,13 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   
 
   ## get coefficient functions over a common grid
-  rownames(beta.cur) = c("int", trmstrings)
-#  rownames(beta.cur) = c(trmstrings)
+#  rownames(beta.cur) = c("int", trmstrings)
+  rownames(beta.cur) = c(trmstrings)
   beta.cur = t(beta.cur) %>% as.data.frame() %>%
     mutate(t = time) %>% 
     arrange(t) %>% unique() %>%
-    subset(select= c("t", "int", trmstrings))
-#    subset(select= c("t", trmstrings))
+#    subset(select= c("t", "int", trmstrings))
+    subset(select= c("t", trmstrings))
   
   ## export fitted values
   Yhat = fixef.est + pcaef.est 

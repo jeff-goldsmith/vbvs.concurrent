@@ -5,8 +5,8 @@
 \title{cv_vbvs_concurrent}
 \usage{
 cv_vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
-  v0 = seq(0.01, 0.1, 0.01), v1 = 100, train.prop = 0.8, SEED = 1,
-  standardized = FALSE, t.min = NULL, t.max = NULL)
+  v0 = seq(0.01, 0.1, 0.01), v1 = 100, SEED = 1, standardized = FALSE,
+  t.min = NULL, t.max = NULL)
 }
 \arguments{
 \item{Kt}{number of spline basis functions for coefficients and FPCs}
@@ -16,8 +16,6 @@ cv_vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
 \item{v0}{tuning parameter vector; normal spike variance. defaults to 0.01 to 0.1 in increments of 0.01.}
 
 \item{v1}{tuning parameter; normal slab variance}
-
-\item{train.prop}{proportion of subjects to include in the training set}
 
 \item{SEED}{seed value, used to ensure reproducibility of the training split}
 
@@ -33,7 +31,7 @@ cv_vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
 }
 \description{
 Cross validation to choose the tuning parameter v0 in the variational bayes variable selection algorithm
-for the linear functional concurrent model
+for the linear functional concurrent model. Uses five-fold cross validation.
 }
 \author{
 Jeff Goldsmith \email{jeff.goldsmith@columbia.edu}
