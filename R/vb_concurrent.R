@@ -62,7 +62,6 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
     knn.index = as.data.frame(t(knnx.index(time, time, k = round(length(time)*.2))))
     
     for(trm in c(trmstrings)){
-#    for(trm in c(LHS, trmstrings)){
       covar.cur = mf_fixed[trm][,1]
       
       mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})

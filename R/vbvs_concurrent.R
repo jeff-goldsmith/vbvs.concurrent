@@ -20,9 +20,74 @@
 #' 
 #' @export
 #' 
+#' @examples
+#' \dontrun{
+#' library(dplyr)
+#' library(tidyr)
+#' library(ggplot2)
+#' 
+#' ## set design elements
+#' set.seed(1)
+#' I = 100
+#' p = 50
+#' 
+#' ## coefficient functions
+#' beta1 = function(t) { sin(2*t*pi) }
+#' beta2 = function(t) { cos(2*t*pi) }
+#' beta3 = function(t) { 1 }
+#' 
+#' ## FPC basis functions
+#' psi1 = function(t) { sin(4*t*pi) }
+#' psi2 = function(t) { cos(4*t*pi) }
+#' 
+#' ## generate subjects, observation times, and FPC scores
+#' time.data = sapply(1:I, function(u) {
+#'   ji = sample(10:15, 1)
+#'   rbind(runif(ji, 0, 1) %>% sort, 
+#'         rep(u, ji),
+#'         rep(rnorm(1, 0, 3), ji),
+#'         rep(rnorm(1, 0, 1), ji))
+#' }) %>% unlist() %>% matrix(ncol = 4, byrow = TRUE)
+#' colnames(time.data) = c("time", "subj", "c_i1", "c_i2")
+#' time.data = as.data.frame(time.data)
+#' 
+#' ## generate predictor data
+#' predictor.data = matrix(rnorm(dim(time.data)[1] * p), dim(time.data)[1], p)
+#' colnames(predictor.data) = paste0("Cov_", 1:p)
+#' 
+#' ## combine and generate responses
+#' concurrent.data = cbind(time.data, predictor.data)
+#' concurrent.data = 
+#'   mutate(concurrent.data,
+#'          Y = Cov_1 * beta1(time) +            ## fixed effects
+#'              Cov_2 * beta2(time) + 
+#'              Cov_3 * beta3(time) + 
+#'              c_i1 * psi1(time) +              ## pca effects
+#'              c_i2 * psi2(time) + 
+#'              rnorm(dim(concurrent.data)[1]))  ## measurement error
+#' 
+#' ## fit model
+#' pred.list = paste("Cov", 1:p, sep = "_")
+#' formula = as.formula( paste("Y ~", paste(pred.list, collapse = "+"), "| time") )
+#' fit.vbvs = vbvs_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = TRUE,
+#'                            t.min = 0, t.max = 1)
+#' 
+#' ## some plots
+#' plot(fit.vbvs$gamma.pm)
+#' 
+#' betaHat = coef(fit.vbvs, t.new = seq(0, 1, length = 50)) %>%
+#'   gather(., Cov, Value, -t)
+#' betaTrue = data.frame(t = seq(0, 1, length = 50),
+#'                       beta1 = beta1(seq(0, 1, length = 50)),
+#'                       beta2 = beta2(seq(0, 1, length = 50)),
+#'                       beta2 = beta3(seq(0, 1, length = 50))) %>%
+#'   gather(., Cov, Value, -t)
+#' 
+#' ggplot(betaHat, aes(x = t, y = Value, group = Cov)) + geom_path() + 
+#'   geom_path(data = betaTrue, color = "red") + theme_bw()
+#' }
 vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0 = 0.01, v1 = 100,
                            standardized = FALSE, t.min = NULL, t.max = NULL){
-  
   
   ## parse formula
   LHS = as.character(formula)[2]
@@ -64,7 +129,6 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
     knn.index = as.data.frame(t(knnx.index(time, time, k = round(length(time)*.2))))
     
     for(trm in c(trmstrings)){
-#    for(trm in c(LHS, trmstrings)){
       covar.cur = mf_fixed[trm][,1]
       
       mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
@@ -125,19 +189,8 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   Btheta = .5
 
   ## matrices to to approximate paramater values
-  sigma.q.BW = vector("list", p)
-  for(k in 1:p){
-    sigma.q.BW[[k]] = diag(1, Kt)
-  }
-  mu.q.BW = matrix(0, nrow = Kt, ncol = p)  
-  
   mu.q.gamma = rep(1, p)  
   mu.q.dinv = kronecker(diag((1-mu.q.gamma)/v0 + mu.q.gamma/v1, p, p), diag(1, Kt, Kt))
-  
-  sigma.q.Bpsi = vector("list", Kp)
-  for(k in 1:Kp){
-    sigma.q.Bpsi[[k]] = diag(1, Kt)
-  }
   mu.q.Bpsi = matrix(0, nrow = Kt, ncol = Kp)  
   
   sigma.q.C = vector("list", I)
