@@ -253,7 +253,7 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
       }
     }
 
-    mu.q.dinv = kronecker(diag((1-mu.q.gamma)/v0 + mu.q.gamma/v1), diag(1, Kt, Kt))
+    mu.q.dinv = kronecker(diag((1-mu.q.gamma)/v0 + mu.q.gamma/v1, p, p), diag(1, Kt, Kt))
     
     mu.q.ltheta = digamma(Atheta + sum(mu.q.gamma)) - digamma(Atheta + Btheta + p)
     mu.q.l1.theta = digamma(Btheta + p - sum(mu.q.gamma)) - digamma(Atheta + Btheta + p)
