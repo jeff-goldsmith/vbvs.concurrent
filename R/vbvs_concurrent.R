@@ -258,55 +258,65 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
     mu.q.ltheta = digamma(Atheta + sum(mu.q.gamma)) - digamma(Atheta + Btheta + p)
     mu.q.l1.theta = digamma(Btheta + p - sum(mu.q.gamma)) - digamma(Atheta + Btheta + p)
     
-    ###############################################################
-    ## update b-spline parameters for PC basis functions
-    ###############################################################
     
-    sigma.q.Bpsi = solve( 
-      kronecker(diag(1, Kt, Kt), diag((A+Kt/2)/b.q.lambda.Bpsi)) + 
-        as.numeric((A + J/2)/(b.q.sigma.me)) * f_sum(mu.q.c = mu.q.C, sig.q.c = sigma.q.C, theta = Theta, subj.id = subj.id)
-    )
-    mu.q.Bpsi = matrix(((A + J/2)/(b.q.sigma.me)) * sigma.q.Bpsi %*% f_sum2(y = Y, fixef = fixef.est, subj.id = subj.id, mu.q.c = mu.q.C, kt = Kt, theta = Theta), nrow = Kt, ncol = Kp)
-    
-    psi.cur = t(mu.q.Bpsi) %*% (Theta)
-
-    ###############################################################
-    ## scores for each individual
-    ###############################################################
-    
-    for(i in 1:I){
-      index = which(subj.id == subjs[i])
+    if (Kp > 0) {
       
-      Theta_i = Theta[,index]
-      sigma.q.C[[i]] = solve( 
-        diag(1, Kp, Kp ) +
-          ((A + J/2)/(b.q.sigma.me)) * (f_trace(Theta_i = Theta_i, Sig_q_Bpsi = sigma.q.Bpsi, Kp = Kp, Kt = Kt) + 
-                                          t(mu.q.Bpsi) %*% Theta_i %*% t(Theta_i) %*% mu.q.Bpsi)
+      ###############################################################
+      ## update b-spline parameters for PC basis functions
+      ###############################################################
+    
+      sigma.q.Bpsi = solve( 
+        kronecker(diag(1, Kt, Kt), diag((A+Kt/2)/b.q.lambda.Bpsi, Kp, Kp)) + 
+          as.numeric((A + J/2)/(b.q.sigma.me)) * f_sum(mu.q.c = mu.q.C, sig.q.c = sigma.q.C, theta = Theta, subj.id = subj.id)
       )
-      
-      mu.q.C[i,] = ((A + J/2)/(b.q.sigma.me)) * sigma.q.C[[i]] %*% as.matrix(psi.cur[,index]) %*%  (Y[index] - fixef.est[index] )
-    }
+      mu.q.Bpsi = matrix(((A + J/2)/(b.q.sigma.me)) * sigma.q.Bpsi %*% f_sum2(y = Y, fixef = fixef.est, subj.id = subj.id, mu.q.c = mu.q.C, kt = Kt, theta = Theta), nrow = Kt, ncol = Kp)
     
-    for(i in 1:I){
-      index = which(subj.id == subjs[i])
-      pcaef.est[index] = mu.q.C[i,] %*% psi.cur[,index]
+      psi.cur = t(mu.q.Bpsi) %*% (Theta)
+
+      ###############################################################
+      ## scores for each individual
+      ###############################################################
+    
+      for(i in 1:I){
+        index = which(subj.id == subjs[i])
+      
+        Theta_i = Theta[,index]
+        sigma.q.C[[i]] = solve( 
+          diag(1, Kp, Kp ) +
+            ((A + J/2)/(b.q.sigma.me)) * (f_trace(Theta_i = Theta_i, Sig_q_Bpsi = sigma.q.Bpsi, Kp = Kp, Kt = Kt) + 
+            t(mu.q.Bpsi) %*% Theta_i %*% t(Theta_i) %*% mu.q.Bpsi)
+        )
+      
+        mu.q.C[i,] = ((A + J/2)/(b.q.sigma.me)) * sigma.q.C[[i]] %*% (psi.cur[,index]) %*% (Y[index] - fixef.est[index] )
+      }
+    
+      for(i in 1:I){
+        index = which(subj.id == subjs[i])
+        pcaef.est[index] = mu.q.C[i,] %*% psi.cur[,index]
+      }
     }
     
     ###############################################################
     ## update variance components
     ###############################################################
     
-    ## measurement error variance
-    resid = Y - fixef.est - pcaef.est
-    b.q.sigma.me = as.numeric(B + .5 * (crossprod(resid) + 
-                                          sum(diag(sumtXsXs %*% sigma.q.beta)) + 
-                                          f_sum4(mu.q.c= mu.q.C, sig.q.c = sigma.q.C, mu.q.bpsi = mu.q.Bpsi, sig.q.bpsi = sigma.q.Bpsi, theta = Theta, subj.id = subj.id)) )
-    
-    
-    ## lambda for FPCA basis functions
-    for(K in 1:Kp){
-      b.q.lambda.Bpsi[K] = B + .5 * (t(mu.q.Bpsi[,K]) %*% diag(1, Kt, Kt) %*% mu.q.Bpsi[,K] + 
+    if (Kp > 0) {
+      ## measurement error variance
+      resid = Y - fixef.est - pcaef.est
+      b.q.sigma.me = as.numeric(B + .5 * (crossprod(resid) + 
+                                            sum(diag(sumtXsXs %*% sigma.q.beta)) + 
+                                            f_sum4(mu.q.c= mu.q.C, sig.q.c = sigma.q.C, mu.q.bpsi = mu.q.Bpsi, sig.q.bpsi = sigma.q.Bpsi, theta = Theta, subj.id = subj.id)) )
+      
+      ## lambda for FPCA basis functions
+      for(K in 1:Kp){
+        b.q.lambda.Bpsi[K] = B + .5 * (t(mu.q.Bpsi[,K]) %*% diag(1, Kt, Kt) %*% mu.q.Bpsi[,K] + 
                                        sum(diag(diag(1, Kt, Kt) %*% sigma.q.Bpsi[(Kt*(K-1)+1):(Kt*K),(Kt*(K-1)+1):(Kt*K)])))
+      }
+    } else if (Kp == 0) {
+      ## measurement error variance
+      resid = Y - fixef.est - pcaef.est
+      b.q.sigma.me = as.numeric(B + .5 * (crossprod(resid) + 
+                                            sum(diag(sumtXsXs %*% sigma.q.beta)) ))
     }
     
     cat(".")
@@ -329,17 +339,23 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   
   ## export variance components
   sigeps.pm = 1 / as.numeric((A + J/2)/(b.q.sigma.me))
+
+  ## export FPCA objects
+  if (Kp > 0) {
+    ## do svd to get rotated fpca basis
+    rownames(psi.cur) = paste0("Psi.", 1:Kp)
+    psi.cur = t(psi.cur) %>% as.data.frame() %>%
+      mutate(t = time) %>% 
+      arrange(t) %>% unique() %>%
+      subset(select= c("t", paste0("Psi.", 1:Kp)))
   
-  ## do svd to get rotated fpca basis
-  rownames(psi.cur) = paste0("Psi.", 1:Kp)
-  psi.cur = t(psi.cur) %>% as.data.frame() %>%
-    mutate(t = time) %>% 
-    arrange(t) %>% unique() %>%
-    subset(select= c("t", paste0("Psi.", 1:Kp)))
-  
-  temp = svd(psi.cur[,-1])
-  psi.cur[,-1] = temp$u
-  lambda.pm = temp$d
+    temp = svd(psi.cur[,-1])
+    psi.cur[,-1] = temp$u
+    lambda.pm = temp$d
+  } else if (Kp == 0) {
+    psi.cur = NULL
+    lambda.pm = NULL
+  }
   
   ret = list(beta.cur, psi.cur, mu.q.gamma, mu.q.beta, lambda.pm, Yhat, sigeps.pm, pcaef.est, fixef.est, 
              data.complete, data.model, formula, formula.model, time.var, id.var, Kt, Kp, standardized,
