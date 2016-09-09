@@ -7,3 +7,4 @@ Author: Jeff Goldsmith
 Maintainer: Jeff Goldsmith <jeff.goldsmith@columbia.edu>
 Description: More about what it does (maybe more than one line)
 License: GPL (>= 2)
+RoxygenNote: 5.0.1

@@ -26,8 +26,8 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   LHS = as.character(formula)[2]
   RHS = as.character(formula)[3]
   
-  if(is.null(id.var)){ stop("Please specify the subject ID variable")}
-  if(grep("|", RHS) == 0){ stop("Formula incorrectly specified; needs a '|' to indicate time parameter")}
+  if (is.null(id.var)) { stop("Please specify the subject ID variable")}
+  if (grep("|", RHS) == 0) { stop("Formula incorrectly specified; needs a '|' to indicate time parameter")}
   
   time.var = strsplit(RHS, "|", fixed = TRUE)[[1]][2] %>% gsub(" ", "", x = ., fixed = TRUE)
   RHS = strsplit(RHS, "|", fixed = TRUE)[[1]][1]
@@ -41,11 +41,11 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   
   ## construct theta matrix
   time = data.complete[time.var][,1]
-  if(is.null(t.min)) {t.min = min(time)}
-  if(is.null(t.max)) {t.max = max(time)}
+  if (is.null(t.min)) {t.min = min(time)}
+  if (is.null(t.max)) {t.max = max(time)}
   
   Theta = t(bs(c(t.min, t.max, time), knots = quantile(time, probs = seq(0, 1, length = Kt - 2))[-c(1,Kt - 2)], 
-               intercept=TRUE, degree=3))[,-(1:2)]
+               intercept = TRUE, degree = 3))[,-(1:2)]
   
 #  formula.model = as.formula(paste0(LHS, "~", RHS))
   formula.model = as.formula(paste0(LHS, "~ 0+", RHS))
@@ -54,14 +54,15 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
 #  p = length(trmstrings) + 1
   p = length(trmstrings)
   mf_fixed = data.model <- model.frame(tf, data = data)
+  mt_fixed = attr(mf_fixed, "terms")
   
   ## normalize variables
-  if(!standardized){
+  if (!standardized) {
     cat("Standardizing Variables \n")
     
     knn.index = as.data.frame(t(knnx.index(time, time, k = round(length(time)*.2))))
     
-    for(trm in c(trmstrings)){
+    for (trm in c(trmstrings)) {
       covar.cur = mf_fixed[trm][,1]
       
       mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
@@ -73,7 +74,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
       cat(".")
     }
     
-    for(trm in LHS){
+    for (trm in LHS) {
       covar.cur = mf_fixed[trm][,1]
       
       mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
@@ -103,7 +104,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   sumtXsXs = matrix(0, Kt*p, Kt*p)
   one.p = matrix(1, p, 1)
   one.Kt = matrix(1, Kt, 1)
-  for(i in 1:I){
+  for (i in 1:I) {
     index = which(subj.id == subjs[i])
     
     X.cur = t(model.matrix(mf_fixed, data = slice(data.model, index)))
@@ -112,7 +113,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
     XS.cur = Xstar[[i]] = t(kronecker(X.cur, one.Kt) * kronecker(one.p, Theta.cur))
     XStXS = XStXS + crossprod(XS.cur)
     XStY = XStY + t(XS.cur) %*% as.matrix(Y.cur)
-    sumtXsXs = sumtXsXs + t(XS.cur)%*% XS.cur
+    sumtXsXs = sumtXsXs + t(XS.cur) %*% XS.cur
   }
   
   ## hyper parameters for inverse gaussians, bernoulli
@@ -121,7 +122,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
 
   ## matrices to to approximate paramater values
   sigma.q.BW = vector("list", p)
-  for(k in 1:p){
+  for (k in 1:p) {
     sigma.q.BW[[k]] = diag(1, Kt)
   }
   mu.q.BW = matrix(0, nrow = Kt, ncol = p)  
@@ -130,13 +131,13 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   mu.q.dinv = kronecker(diag(mu.q.gamma/v1, p, p), diag(1, Kt, Kt))
   
   sigma.q.Bpsi = vector("list", Kp)
-  for(k in 1:Kp){
+  for (k in 1:Kp) {
     sigma.q.Bpsi[[k]] = diag(1, Kt)
   }
   mu.q.Bpsi = matrix(0, nrow = Kt, ncol = Kp)  
   
   sigma.q.C = vector("list", I)
-  for(k in 1:I){
+  for (k in 1:I) {
     sigma.q.C[[k]] = diag(1, Kp)
   }
   set.seed(1)
@@ -151,14 +152,14 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   
   cat("Beginning Algorithm \n")
 
-  for(iter in 1:10){
+  for (iter in 1:10) {
     
     ###############################################################
     ## update regression coefficients
     ###############################################################
   
     XStY = matrix(0, Kt*p, 1)
-    for(i in 1:I){
+    for (i in 1:I) {
       index = which(subj.id == subjs[i])
       Y.cur = Y[index]
       pcaef.cur = pcaef.est[index]
@@ -171,7 +172,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
     
     beta.cur = t(mu.q.beta) %*% (Theta)
     
-    for(i in 1:I){
+    for (i in 1:I) {
       index = which(subj.id == subjs[i])
       fixef.est[index] = Xstar[[i]] %*% as.vector(mu.q.beta)
       # equivalent formulation: apply(X[[subj]] * beta.cur, 2, sum)
@@ -181,7 +182,6 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
     ## update gammas -- not in this version!
     ###############################################################
   
-
     if (Kp > 0) {
       
       ###############################################################
@@ -189,7 +189,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
       ###############################################################
       
       sigma.q.Bpsi = solve( 
-        kronecker(diag(1, Kt, Kt), diag((A+Kt/2)/b.q.lambda.Bpsi, Kp, Kp)) + 
+        kronecker(diag(1, Kt, Kt), diag((A + Kt/2)/b.q.lambda.Bpsi, Kp, Kp)) + 
           as.numeric((A + J/2)/(b.q.sigma.me)) * f_sum(mu.q.c = mu.q.C, sig.q.c = sigma.q.C, theta = Theta, subj.id = subj.id)
       )
       mu.q.Bpsi = matrix(((A + J/2)/(b.q.sigma.me)) * sigma.q.Bpsi %*% f_sum2(y = Y, fixef = fixef.est, subj.id = subj.id, mu.q.c = mu.q.C, kt = Kt, theta = Theta), nrow = Kt, ncol = Kp)
@@ -200,7 +200,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
       ## scores for each individual
       ###############################################################
       
-      for(i in 1:I){
+      for (i in 1:I) {
         index = which(subj.id == subjs[i])
         
         Theta_i = Theta[,index]
@@ -213,7 +213,7 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
         mu.q.C[i,] = ((A + J/2)/(b.q.sigma.me)) * sigma.q.C[[i]] %*% (psi.cur[,index]) %*% (Y[index] - fixef.est[index] )
       }
       
-      for(i in 1:I){
+      for (i in 1:I) {
         index = which(subj.id == subjs[i])
         pcaef.est[index] = mu.q.C[i,] %*% psi.cur[,index]
       }
@@ -228,12 +228,12 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
       resid = Y - fixef.est - pcaef.est
       b.q.sigma.me = as.numeric(B + .5 * (crossprod(resid) + 
                                             sum(diag(sumtXsXs %*% sigma.q.beta)) + 
-                                            f_sum4(mu.q.c= mu.q.C, sig.q.c = sigma.q.C, mu.q.bpsi = mu.q.Bpsi, sig.q.bpsi = sigma.q.Bpsi, theta = Theta, subj.id = subj.id)) )
+                                            f_sum4(mu.q.c = mu.q.C, sig.q.c = sigma.q.C, mu.q.bpsi = mu.q.Bpsi, sig.q.bpsi = sigma.q.Bpsi, theta = Theta, subj.id = subj.id)) )
       
       ## lambda for FPCA basis functions
-      for(K in 1:Kp){
+      for (K in 1:Kp) {
         b.q.lambda.Bpsi[K] = B + .5 * (t(mu.q.Bpsi[,K]) %*% diag(1, Kt, Kt) %*% mu.q.Bpsi[,K] + 
-                                         sum(diag(diag(1, Kt, Kt) %*% sigma.q.Bpsi[(Kt*(K-1)+1):(Kt*K),(Kt*(K-1)+1):(Kt*K)])))
+                                         sum(diag(diag(1, Kt, Kt) %*% sigma.q.Bpsi[(Kt*(K - 1) + 1):(Kt*K), (Kt*(K - 1) + 1):(Kt*K)])))
       }
     } else if (Kp == 0) {
       ## measurement error variance
@@ -250,13 +250,12 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   
 
   ## get coefficient functions over a common grid
-#  rownames(beta.cur) = c("int", trmstrings)
   rownames(beta.cur) = c(trmstrings)
   beta.cur = t(beta.cur) %>% as.data.frame() %>%
     mutate(t = time) %>% 
-    arrange(t) %>% unique() %>%
-#    subset(select= c("t", "int", trmstrings))
-    subset(select= c("t", trmstrings))
+    rename_(.dots = setNames(list("t"), time.var)) %>%
+    arrange_(time.var) %>% unique() %>%
+    subset(select = c(time.var, trmstrings))
   
   ## export fitted values
   Yhat = fixef.est + pcaef.est 
@@ -271,24 +270,46 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
     psi.cur = t(psi.cur) %>% as.data.frame() %>%
       mutate(t = time) %>% 
       arrange(t) %>% unique() %>%
-      subset(select= c("t", paste0("Psi.", 1:Kp)))
-    
-    temp = svd(psi.cur[,-1])
-    psi.cur[,-1] = temp$u
-    lambda.pm = temp$d
+      subset(select = c(paste0("Psi.", 1:Kp))) %>%
+      as.matrix() %>%
+      t()
+    argvals = sort(unique(time))
+    SVD = svd(psi.cur)
+    efunctions = SVD$v
+    scores = mu.q.C %*% SVD$u %*% diag(SVD$d, Kp, Kp)
+    evalues = diag(cov(scores))
   } else if (Kp == 0) {
-    psi.cur = NULL
-    lambda.pm = NULL
+    argvals = sort(unique(time))
+    efunctions = NULL
+    scores = NULL
+    evalues = NULL
   }
   
-  ret = list(beta.cur, psi.cur, mu.q.beta, lambda.pm, Yhat, sigeps.pm, pcaef.est, fixef.est, 
-             data.complete, data.model, formula, formula.model, time.var, id.var, Kt, Kp, standardized,
-             t.min, t.max)
-  names(ret) = c("beta.pm", "psi.pm", "spline.coef.est", "lambda.pm", "Yhat", "sigeps.pm", "pcaef", "fixef",
-                 "data", "data.model", "formula", "formula.model", "time.var", "id.var", "Kt", "Kp", "standardized",
-                 "t.min", "t.max")
+  Yhat.fpca = data.frame(index = time, value = pcaef.est, id = subj.id)
+  class(Yhat.fpca) = c("data.frame", "refund_object")
   
-  class(ret) = "concurFLM"
+  Y.fpca = data.frame(index = time, value = Y - fixef.est, id = subj.id)
+  class(Yhat.fpca) = c("data.frame", "refund_object")
+  
+  fpca.obj = list(Yhat = Yhat.fpca,
+                  Y = Y.fpca,
+                  scores = scores,
+                  mu = rep(0, length(argvals)),
+                  efunctions = efunctions, 
+                  evalues = evalues,
+                  npc = Kp,
+                  argvals = argvals)
+  class(fpca.obj) = "fpca"
+  
+  ## export objects  
+  ret = list(beta.cur, mu.q.beta, Yhat, sigeps.pm, fixef.est, 
+             data.complete, data.model, formula, formula.model, mt_fixed, time.var, id.var, Kt, Kp, standardized,
+             t.min, t.max, fpca.obj)
+  names(ret) = c("beta.pm", "spline.coef.est", "Yhat", "sigeps.pm", "fixef",
+                 "data", "data.model", "formula", "formula.model", "terms", "time.var", "id.var", "Kt", "Kp", "standardized",
+                 "t.min", "t.max", "fpca.obj")
+  
+  class(ret) = "flcm"
   
   ret
   
