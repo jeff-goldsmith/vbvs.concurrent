@@ -1,4 +1,4 @@
-#' coef.concurFLM
+#' coef.flcm
 #' 
 #' Extract coefficient functions from a fitted concurrent functional linear model
 #' 
@@ -20,7 +20,7 @@
 #' 
 #' @export
 #' 
-coef.concurFLM <- function(object, t.new = NULL) {
+coef.flcm <- function(object, t.new = NULL) {
   
   tf <- terms.formula(object$formula.model, specials = NULL)
   trmstrings <- attr(tf, "term.labels")

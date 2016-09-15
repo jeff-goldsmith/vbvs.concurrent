@@ -1,4 +1,4 @@
-Package: vbvs.concurrent
+Package: vbvs_concurrent
 Type: Package
 Title: Variational Bayes Variable Selection for the Functional Concurrent Model
 Version: 0.1

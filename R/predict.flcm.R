@@ -1,4 +1,4 @@
-#' predict.concurFLM
+#' predict.flcm
 #' 
 #' Compute predicted values for a new dataset based on a fitted concurrent functional linear model
 #' 
@@ -18,7 +18,7 @@
 #' 
 #' @export
 #' 
-predict.concurFLM <- function(object, data.new = NULL, standardized = FALSE) {
+predict.flcm <- function(object, data.new = NULL, standardized = FALSE) {
   
   ## add check that column names match?
   
