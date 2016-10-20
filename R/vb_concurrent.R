@@ -121,19 +121,8 @@ vb_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v1 =
   B = .5
 
   ## matrices to to approximate paramater values
-  sigma.q.BW = vector("list", p)
-  for (k in 1:p) {
-    sigma.q.BW[[k]] = diag(1, Kt)
-  }
-  mu.q.BW = matrix(0, nrow = Kt, ncol = p)  
-  
   mu.q.gamma = rep(1, p)  
   mu.q.dinv = kronecker(diag(mu.q.gamma/v1, p, p), diag(1, Kt, Kt))
-  
-  sigma.q.Bpsi = vector("list", Kp)
-  for (k in 1:Kp) {
-    sigma.q.Bpsi[[k]] = diag(1, Kt)
-  }
   mu.q.Bpsi = matrix(0, nrow = Kt, ncol = Kp)  
   
   sigma.q.C = vector("list", I)

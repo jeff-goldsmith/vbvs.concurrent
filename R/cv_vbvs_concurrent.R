@@ -20,7 +20,7 @@ cv_vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2,
                               SEED = 1, standardized = FALSE, t.min = NULL, t.max = NULL){
   
   OOS.sq.err = matrix(NA, nrow = length(v0), ncol = 5)
-  outcome.var = as.character(form)[2]
+  outcome.var = as.character(formula)[2]
   set.seed(SEED)
   
   ## define folds
