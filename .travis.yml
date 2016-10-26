@@ -5,8 +5,8 @@ r:
   - oldrel
   - release
   - devel
-cache: packages
 
+cache: packages
 
 after_failure:
   - ./travis-tool.sh dump_logs
@@ -19,7 +19,7 @@ notifications:
     on_failure: always
 
 r_github_packages:
-  - jeff-goldsmith/vbvs.concurrent
+  - jimhester/covr
 
 after_success:
   - Rscript -e 'covr::codecov()'
