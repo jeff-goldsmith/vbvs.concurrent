@@ -4,7 +4,7 @@
 \alias{coef.flcm}
 \title{coef.flcm}
 \usage{
-\method{coef}{flcm}(object, t.new = NULL)
+\method{coef}{flcm}(object, t.new = NULL, ...)
 }
 \arguments{
 \item{object}{return object from \code{\link{vbvs_concurrent}}, 
@@ -12,6 +12,8 @@
 
 \item{t.new}{vector indicating the desired coordinates on which the functional 
 coefficients will be evaluated}
+
+\item{...}{these arguments are ignored}
 }
 \value{
 a data frame containing the evaluation points and coefficient function 

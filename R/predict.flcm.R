@@ -8,7 +8,8 @@
 #'   as those used to fit the model, including the time variable used to parameterize functional observations
 #' @param standardized logical; are values in `data.new` standardized? if not, they will be standardized using the
 #'   same scheme as used in the original analysis
-#'   
+#' @param ... these arguments are ignored
+#' 
 #' @return a vector of fitted values
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
@@ -18,7 +19,9 @@
 #' 
 #' @export
 #' 
-predict.flcm <- function(object, data.new = NULL, standardized = FALSE) {
+predict.flcm <- function(object, data.new = NULL, standardized = TRUE, ...) {
+  
+  if (is.null(data.new)) {data.new = object$data.model}
   
   ## add check that column names match?
   
@@ -27,7 +30,7 @@ predict.flcm <- function(object, data.new = NULL, standardized = FALSE) {
   
   ## normalize variables
   
-  if(!standardized){
+  if (!standardized) {
     cat("Standardizing Variables \n")
     
     t.original = object$data[object$time.var][,1]
@@ -36,7 +39,7 @@ predict.flcm <- function(object, data.new = NULL, standardized = FALSE) {
     knn.index.original = as.data.frame(t(knnx.index(t.original, t.original, k = round(length(t.original)*.2))))
     knn.index.new = as.data.frame(t(knnx.index(t.original, t.new, k = round(length(t.original)*.2))))
     
-    for(trm in trmstrings){
+    for (trm in trmstrings) {
       covar.cur = object$data[trm][,1]
       
       ## get mean and var for original data
@@ -59,7 +62,7 @@ predict.flcm <- function(object, data.new = NULL, standardized = FALSE) {
   ## multiply each coefficient by each observed value; sum to get fitted value
 #  fitted = mutate(data.new, int = 1) %>% subset(select = c("int", trmstrings)) %>% 
   fitted = data.new %>% subset(select = trmstrings) %>% 
-    '*'(., subset(beta.hat, select = -c(t))) %>%
+    '*'(., select(beta.hat, -contains(object$time.var))) %>%
     apply(1, sum)
 
   fitted 

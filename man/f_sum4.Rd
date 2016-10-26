@@ -18,6 +18,8 @@ f_sum4(mu.q.c, sig.q.c, mu.q.bpsi, sig.q.bpsi, theta, obspts.mat, subj.id)
 \item{theta}{current value of theta}
 
 \item{obspts.mat}{matrix indicating where curves are observed}
+
+\item{subj.id}{vector of subject IDs}
 }
 \description{
 Internal function used compute a sum in FPCA-based covariance updates

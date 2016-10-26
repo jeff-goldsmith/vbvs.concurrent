@@ -8,6 +8,7 @@
 #' @param sig.q.bpsi current value of sig.q.bpsi
 #' @param theta current value of theta
 #' @param obspts.mat matrix indicating where curves are observed
+#' @param subj.id vector of subject IDs
 #' 
 #' @author Jeff Goldsmith \email{ajg2202@@cumc.columbia.edu}
 #' 

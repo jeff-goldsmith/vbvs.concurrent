@@ -82,9 +82,9 @@ concurrent.data =
 pred.list = paste("Cov", 1:p, sep = "_")
 formula = as.formula( paste("Y ~", paste(pred.list, collapse = "+"), "| time") )
 fit.vb = vb_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = TRUE,
-                           t.min = 0, t.max = 1)
+                           t.min = 0, t.max = 1, Kp = 3)
 fit.vbvs = vbvs_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = TRUE,
-                           t.min = 0, t.max = 1)
+                           t.min = 0, t.max = 1, Kp = 3)
 
 ## interactive plot for mean model
 plot_shiny(fit.vb)

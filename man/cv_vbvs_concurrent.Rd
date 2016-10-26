@@ -9,6 +9,12 @@ cv_vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
   t.min = NULL, t.max = NULL)
 }
 \arguments{
+\item{formula}{formula for desired regression. should have form \code{ y ~ x1 + x2 + ... + x_k | t}, where \code{t} is the variable that parameterized observed functions}
+
+\item{id.var}{variable giving subject ID vector}
+
+\item{data}{optional data frame}
+
 \item{Kt}{number of spline basis functions for coefficients and FPCs}
 
 \item{Kp}{number of FPCs to estimate}
@@ -24,10 +30,6 @@ cv_vbvs_concurrent(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2,
 \item{t.min}{minimum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be minimum observed value.}
 
 \item{t.max}{maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be maximum observed value.}
-
-\item{Y}{matrix of functional responses}
-
-\item{X}{list of matrices, each of which contains the functional predictor for an individual subject}
 }
 \description{
 Cross validation to choose the tuning parameter v0 in the variational bayes variable selection algorithm

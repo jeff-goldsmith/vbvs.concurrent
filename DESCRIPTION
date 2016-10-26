@@ -6,5 +6,23 @@ Date: 2016-09-01
 Author: Jeff Goldsmith
 Maintainer: Jeff Goldsmith <jeff.goldsmith@columbia.edu>
 Description: Implementations of model-fitting approaches for the functional linear concurrent model (FLCM).
+Imports:
+    dplyr,
+    splines,
+    FNN,
+    stats
+Suggests: testthat
+Collate: 
+    'coef.flcm.R'
+    'cv_vbvs_concurrent.R'
+    'f_sum.R'
+    'f_sum2.R'
+    'f_sum4.R'
+    'f_trace.R'
+    'ols_concurrent.R'
+    'predict.flcm.R'
+    'vb_concurrent.R'
+    'vbvs_concurrent.R'
 License: GPL (>= 2)
 RoxygenNote: 5.0.1
+

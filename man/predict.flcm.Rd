@@ -4,7 +4,7 @@
 \alias{predict.flcm}
 \title{predict.flcm}
 \usage{
-\method{predict}{flcm}(object, data.new = NULL, standardized = FALSE)
+\method{predict}{flcm}(object, data.new = NULL, standardized = TRUE, ...)
 }
 \arguments{
 \item{object}{return object from \code{\link{vbvs_concurrent}}, 
@@ -15,6 +15,8 @@ as those used to fit the model, including the time variable used to parameterize
 
 \item{standardized}{logical; are values in `data.new` standardized? if not, they will be standardized using the
 same scheme as used in the original analysis}
+
+\item{...}{these arguments are ignored}
 }
 \value{
 a vector of fitted values

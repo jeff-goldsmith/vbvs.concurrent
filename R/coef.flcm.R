@@ -9,27 +9,30 @@
 #'   \code{\link{vb_concurrent}}, or \code{\link{ols_concurrent}}
 #' @param t.new vector indicating the desired coordinates on which the functional 
 #'   coefficients will be evaluated
+#' @param ... these arguments are ignored
 #'   
 #' @return a data frame containing the evaluation points and coefficient function 
 #'   values on the indicated grid
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
 #' 
+#' @import dplyr
 #' @importFrom stats coef
 #' @importFrom splines bs
 #' 
 #' @export
 #' 
-coef.flcm <- function(object, t.new = NULL) {
+coef.flcm <- function(object, t.new = NULL, ...) {
   
   tf <- terms.formula(object$formula.model, specials = NULL)
   trmstrings <- attr(tf, "term.labels")
 
-  t.original = object$data.model[object$time.var][,1]
+  time.var = object$time.var
+  t.original = object$data.model[time.var][,1]
   
-  if(is.null(t.new)) { t.new = t.original }
+  if (is.null(t.new)) { t.new = t.original }
   
-  if(min(t.new) < min(object$t.min) | max(t.new) > max(object$t.max)){
+  if (min(t.new) < min(object$t.min) | max(t.new) > max(object$t.max)) {
     stop("Specified domain extends beyond domain on which model was originally estimated")
   }
 
@@ -38,7 +41,7 @@ coef.flcm <- function(object, t.new = NULL) {
   t.new = c(object$t.min, object$t.max, t.new)
     
   Theta = t(bs(t.new, knots = quantile(t.original, probs = seq(0, 1, length = object$Kt - 2))[-c(1,object$Kt - 2)], 
-               intercept=TRUE, degree=3))
+               intercept = TRUE, degree = 3))
   beta.cur = t(object$spline.coef.est) %*% (Theta)
 #  rownames(beta.cur) = c("int", trmstrings)
   rownames(beta.cur) = trmstrings
@@ -46,7 +49,9 @@ coef.flcm <- function(object, t.new = NULL) {
     slice(., -(1:2)) %>%
     mutate(t = t.new[-(1:2)]) %>% 
 #    subset(select= c("t", "int", trmstrings))
-    subset(select= c("t", trmstrings))
+    select(t, one_of(trmstrings)) 
+  
+  names(beta.cur)[1] = time.var
   
   beta.cur
   
