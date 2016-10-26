@@ -15,9 +15,8 @@
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
 #' 
-#' @import stats
+#' @importFrom stats model.frame
 #' @importFrom splines bs
-#' @importFrom FNN knn.index
 #' 
 #' @export
 #' 
@@ -116,37 +115,19 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   trmstrings <- attr(tf, "term.labels")
 #  p = length(trmstrings) + 1
   p = length(trmstrings)
-  mf_fixed = data.model <- model.frame(tf, data = data)
+  mf_fixed = data.model = model.frame(tf, data = data)
   mt_fixed = attr(mf_fixed, "terms")
+  
+  data.model[id.var] = data.complete[id.var]
+  data.model[time.var] = data.complete[time.var]
   
   ## normalize variables
   if (!standardized) {
+    
     cat("Standardizing Variables \n")
-    
-    knn.index = as.data.frame(t(knnx.index(time, time, k = round(length(time)*.2))))
-    
-    for (trm in c(trmstrings)) {
-      covar.cur = mf_fixed[trm][,1]
-      
-      mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
-      sq.resid = (covar.cur - mean.fit) ^ 2
-      
-      var.fit = sapply(knn.index, function(u){mean(sq.resid[u])})
-      
-      data.model[trm] = mf_fixed[trm] = (covar.cur - mean.fit) / sqrt(var.fit)
-      cat(".")
-    }
-    
-    for (trm in LHS) {
-      covar.cur = mf_fixed[trm][,1]
-      
-      mean.fit = sapply(knn.index, function(u){mean(covar.cur[u])})
-
-      data.model[trm] = mf_fixed[trm] = (covar.cur - mean.fit)
-      cat(".")
-    }
-    
+    data.model = standardize_variables(data.original = data.model, time.var = time.var, trmstrings = trmstrings, LHS = LHS)
     cat("\n")
+    
   }
   
   data.model[id.var] = data.complete[id.var]

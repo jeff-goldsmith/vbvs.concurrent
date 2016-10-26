@@ -19,8 +19,8 @@ Collate:
     'f_sum2.R'
     'f_sum4.R'
     'f_trace.R'
-    'ols_concurrent.R'
     'predict.flcm.R'
+    'standardize_variables.R'
     'vb_concurrent.R'
     'vbvs_concurrent.R'
 License: GPL (>= 2)

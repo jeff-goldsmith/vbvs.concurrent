@@ -7,8 +7,8 @@
 \method{predict}{flcm}(object, data.new = NULL, standardized = TRUE, ...)
 }
 \arguments{
-\item{object}{return object from \code{\link{vbvs_concurrent}}, 
-\code{\link{vb_concurrent}}, or \code{\link{ols_concurrent}}}
+\item{object}{return object from \code{\link{vbvs_concurrent}} or
+\code{\link{vb_concurrent}}}
 
 \item{data.new}{dataset for which fitted values should be computed. should be a dataframe with names the same
 as those used to fit the model, including the time variable used to parameterize functional observations}

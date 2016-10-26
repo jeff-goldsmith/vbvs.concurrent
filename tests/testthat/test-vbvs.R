@@ -85,3 +85,10 @@ test_that("vbvs returns objects of appropriate class", {
   expect_is(fit.vbvs$fpca.obj, "fpca")
 
 })
+
+test_that("vbs error checks work", {
+  
+  expect_error(vbvs_concurrent(formula, data = concurrent.data))
+  expect_error(vbvs_concurrent(Y ~ Cov_1, id.var = "subj", data = concurrent.data))
+  
+})

@@ -7,8 +7,8 @@
 \method{coef}{flcm}(object, t.new = NULL, ...)
 }
 \arguments{
-\item{object}{return object from \code{\link{vbvs_concurrent}}, 
-\code{\link{vb_concurrent}}, or \code{\link{ols_concurrent}}}
+\item{object}{return object from \code{\link{vbvs_concurrent}} or
+\code{\link{vb_concurrent}}}
 
 \item{t.new}{vector indicating the desired coordinates on which the functional 
 coefficients will be evaluated}

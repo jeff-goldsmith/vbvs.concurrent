@@ -5,8 +5,8 @@
 #' This function is used to extract coefficient functions from a concurrent functional 
 #' linear model, possibly on a user-specified grid.
 #' 
-#' @param object return object from \code{\link{vbvs_concurrent}}, 
-#'   \code{\link{vb_concurrent}}, or \code{\link{ols_concurrent}}
+#' @param object return object from \code{\link{vbvs_concurrent}} or
+#'   \code{\link{vb_concurrent}}
 #' @param t.new vector indicating the desired coordinates on which the functional 
 #'   coefficients will be evaluated
 #' @param ... these arguments are ignored

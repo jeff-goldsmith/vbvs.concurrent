@@ -1,4 +1,4 @@
-context("Coefficients")
+context("Prediction")
 
 #### simulate example dataset for testing ####
 
@@ -30,7 +30,7 @@ colnames(time.data) = c("time", "subj", "c_i1", "c_i2")
 time.data = as.data.frame(time.data)
 
 ## generate predictor data
-predictor.data = matrix(rnorm(dim(time.data)[1] * p), dim(time.data)[1], p)
+predictor.data = matrix(rnorm(dim(time.data)[1] * p, sd = 4), dim(time.data)[1], p)
 colnames(predictor.data) = paste0("Cov_", 1:p)
 
 ## combine and generate responses
@@ -50,30 +50,24 @@ formula = as.formula( paste("Y ~", paste(pred.list, collapse = "+"), "| time") )
 
 #### tests ####
 
-test_that("the coefficient function works for vb and vbvs", {
+test_that("the standardize function works", {
   
-  fit.vbvs = vbvs_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = TRUE,
+  fit.vbvs = vbvs_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = FALSE,
                              t.min = 0, t.max = 1)
-  fit.vb = vb_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = TRUE,
+  fit.vb = vb_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = FALSE,
                              t.min = 0, t.max = 1)
   
-  expect_equal(max(abs(coef(fit.vbvs) %>% arrange(time) - fit.vbvs$beta.pm)), 0, tolerance = 1e-5)
-  expect_equal(max(abs(coef(fit.vb) %>% arrange(time) - fit.vb$beta.pm)), 0, tolerance = 1e-5)
+  expect_equal(var(concurrent.data$Cov_1), 16, tolerance = 1)
+  expect_equal(var(fit.vbvs$data.model$Cov_1), 1, tolerance = 1e-1)
+  expect_equal(var(fit.vb$data.model$Cov_1), 1, tolerance = 1e-1)
+  expect_equal(fit.vb$data.model, fit.vbvs$data.model, tolerance = 1e-1)
   
+  tf = terms.formula(fit.vb$formula.model, specials = NULL)
+  trmstrings = attr(tf, "term.labels")
   
-})
-
-test_that("coefficient options work", {
+  data.stan.filtered = standardize_variables(data.original = concurrent.data, data.new = filter(concurrent.data, subj == 1),
+                        trmstrings = trmstrings, time.var = fit.vb$time.var)
   
-  fit.vbvs = vbvs_concurrent(formula, id.var = "subj", data = concurrent.data, standardized = TRUE)
-  
-  t.new = seq(.1, .9, length = 100)
-  coefficients = coef(fit.vbvs, t.new = t.new)
-  
-  expect_equal(coefficients$time, t.new)
-  expect_equal(mean((coefficients$Cov_1 - beta1(t.new)) ^ 2), 0, tolerance = .01)
-  
-  t.new = seq(-.1, .9, length = 100)
-  expect_error(coef(fit.vbvs, t.new = t.new))
+  expect_equal(data.stan.filtered$Cov_1, filter(fit.vb$data.model, subj == 1)$Cov_1)
   
 })
