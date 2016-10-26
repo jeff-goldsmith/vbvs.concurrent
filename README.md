@@ -1,5 +1,8 @@
 # `vbvs.concurrent`
 
+[![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent)
+[![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master)
+
 ## Variational Bayes variable selection for the functional linear concurrent model.
 
 The primary function for model fitting is `vbvs_concurrent`; to fit the model with no variable selection, use `vb_concurrent`. Helper functions for extracting coefficients and making predictions are also provided. 
