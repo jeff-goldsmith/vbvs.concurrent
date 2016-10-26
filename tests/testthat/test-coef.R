@@ -3,7 +3,6 @@ context("Coefficients")
 #### simulate example dataset for testing ####
 
 library(dplyr)
-library(tidyr)
 
 ## set design elements
 set.seed(1)

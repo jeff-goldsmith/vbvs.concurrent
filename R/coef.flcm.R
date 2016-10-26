@@ -17,7 +17,7 @@
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
 #' 
 #' @import dplyr
-#' @importFrom stats coef
+#' @importFrom stats coef terms.formula quantile
 #' @importFrom splines bs
 #' 
 #' @export

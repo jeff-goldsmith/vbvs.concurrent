@@ -14,7 +14,7 @@
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
 #' 
-#' @importFrom stats predict
+#' @importFrom stats predict terms.formula
 #' @importFrom FNN knn.index knnx.index
 #' 
 #' @export

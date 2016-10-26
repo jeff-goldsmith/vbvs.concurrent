@@ -14,6 +14,7 @@
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
 #' 
+#' @import stats
 #' @importFrom splines bs
 #' @importFrom FNN knn.index
 #' 
