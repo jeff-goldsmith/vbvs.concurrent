@@ -1,8 +1,24 @@
+---
+output: 
+  github_document
+---
 
-[![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent) [![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master)
+[![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent)
+[![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master)
 
-vbvs.concurrent: Fitting Methods for the Functional Linear Concurrent Model.
-----------------------------------------------------------------------------
+## vbvs.concurrent: Fitting Methods for the Functional Linear Concurrent Model.
+
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(
+  comment = '#>',
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = TRUE,
+  cache = FALSE
+)
+```
 
 Author: Jeff Goldsmith
 
@@ -10,32 +26,34 @@ License: [GPL-3](https://opensource.org/licenses/GPL-3.0)
 
 Version: 0.1
 
-------------------------------------------------------------------------
+
+---------------
 
 Functional data analysis is concerned with understanding measurements made over time, space, frequencies, and other domains for multiple subjects. Given the ubiquity of wearable devices, it is common to obtain several data streams monitoring blood pressure, physical activity, heart rate, location, and other quantities on study participants in parallel. Each of these data streams can be thought of as functional data, and the functional linear concurrent model is useful for relating predictor data to an outcome.
 
-This package implements two statistical methods (with and without variable selection) for estimating the parameters in the functional linear concurrent model; these methods are described in detail [here](http://jeffgoldsmith.com/Downloads/VBVS.pdf). Additional functions to create predictions based on parameter estimates, to extract model coefficients, and to choose tuning parameters via cross validation are included. Interactive visualizations are supported through the [refund.shiny](https://github.com/refunders/refund.shiny) package.
+This package implements two statistical methods (with and without variable selection) for estimating the parameters in the functional linear concurrent model; these methods are described in detail [here](http://jeffgoldsmith.com/Downloads/VBVS.pdf). Additional functions to create predictions based on parameter estimates, to extract model coefficients, and to choose tuning parameters via cross validation are included. Interactive visualizations are supported through the [refund.shiny](https://github.com/refunders/refund.shiny) package. 
 
 ### Installation
 
-------------------------------------------------------------------------
+---------------
 
 You can install the latest version directly from GitHub with [devtools](https://github.com/hadley/devtools):
 
-``` r
+```{r, results='hide', eval=FALSE}
 install.packages("devtools")
 devtools::install_github("jeff-goldsmith/vbvs.concurrent")
 ```
 
 Interactive plotting is implemented through [refund.shiny](https://github.com/refunders/refund.shiny), which can be installed from CRAN or GitHub.
 
+
 ### Example of use
 
-------------------------------------------------------------------------
+---------------
 
-The code below simulates a dataset under the functional linear concurrent model. For each of 50 subjects, observations of two predictor functions and a response function are observed over times between 0 and 1. The predictors and the coefficients that relate them to the response vary over time.
+The code below simulates a dataset under the functional linear concurrent model. For each of 50 subjects, observations of two predictor functions and a response function are observed over times between 0 and 1. The predictors and the coefficients that relate them to the response vary over time. 
 
-``` r
+```{r simulate_data}
 library(dplyr)
 library(tidyr)
 
@@ -66,32 +84,52 @@ concurrent.data =
 
 The plot below shows the predictors and the response, highlighting four subjects.
 
-<img src="README_files/figure-markdown_github/plot_data-1.png" style="display: block; margin: auto;" />
+```{r plot_data, fig.align='center', fig.height=3, fig.width=9, echo=FALSE}
+library(ggplot2)
+library(gridExtra)
+
+plot_function = function(value_var, data) {
+  ggplot(data, aes_string(x = "time", y = value_var, group = "subj")) + geom_path(alpha = .1) +
+    theme_bw() +
+    geom_path(data = filter(data, subj %in% 1:4) %>% mutate(subj = as.factor(subj)), aes(color = subj)) + 
+    theme(legend.position = "none")
+}
+
+panels = lapply(c("Cov_1", "Cov_2", "Y"), plot_function, data = concurrent.data)
+
+grid.arrange(panels[[1]], panels[[2]], panels[[3]], nrow = 1)
+
+```
 
 To fit the functional linear concurrent model, we can use `vb_concurrent`. Alternatively, we can use `vbvs_concurrent` which is similar but adds variable selection to the estimation approach.
 
-``` r
+```{r fit}
 library(vbvs.concurrent)
 
 fit_vb = vb_concurrent(Y ~ Cov_1 + Cov_2 | time, id.var = "subj", data = concurrent.data, 
                        t.min = 0, t.max = 1, standardized = TRUE)
-#> Constructing Xstar; doing data organization 
-#> Beginning Algorithm 
-#> ..........
 fit_vbvs = vbvs_concurrent(Y ~ Cov_1 + Cov_2 | time, id.var = "subj", data = concurrent.data, 
                            t.min = 0, t.max = 1, standardized = TRUE)
-#> Constructing Xstar; doing data organization 
-#> Beginning Algorithm 
-#> ..........
 ```
 
 The plot below shows true coefficients and estimates without using variable selection.
 
-![](README_files/figure-markdown_github/coefficients-1.png)
+```{r coefficients, echo=FALSE, fig.height=3, fig.width=9, echo=FALSE}
+coefs = coef(fit_vb, t.new = seq(0, 1, length = 101)) %>%
+  mutate(True_1 = beta1(time),
+         True_2 = beta2(time)) %>%
+  gather(key, value, Cov_1:True_2) %>%
+  extract(key, c("Estimate", "Beta"), "([[:alnum:]]+)_([[:alnum:]]+)")
+
+ggplot(coefs, aes(x = time, y = value, color = Estimate)) + geom_path() + 
+  facet_wrap(~Beta) + theme_bw()
+
+```
+
 
 Interactive graphics show observed data, coefficient functions, and residual curves. The code below will produce such a graphic.
 
-``` r
+```{r interactive_plot, eval=FALSE}
 library(refund.shiny)
 
 plot_shiny(fit_vb)
@@ -100,6 +138,8 @@ plot_shiny(fit_vbvs)
 
 ### Contributions
 
-------------------------------------------------------------------------
+---------------
 
 If you find small bugs, larger issues, or have suggestions, please file them using the [issue tracker](https://github.com/jeff-goldsmith/vbvs.concurrent/issues) or email the maintainer at <jeff.goldsmith@columbia.edu>. Contributions (via pull requests or otherwise) are welcome.
+
+

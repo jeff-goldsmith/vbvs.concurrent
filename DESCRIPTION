@@ -2,7 +2,7 @@ Package: vbvs.concurrent
 Type: Package
 Title: Variational Bayes Variable Selection for the Functional Linear Concurrent Model
 Version: 0.1
-Date: 2016-09-01
+Date: 2016-11-01
 Author: Jeff Goldsmith
 Maintainer: Jeff Goldsmith <jeff.goldsmith@columbia.edu>
 Description: Implementations of model-fitting approaches for the functional linear concurrent model (FLCM).
