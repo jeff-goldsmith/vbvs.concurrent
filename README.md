@@ -1,8 +1,9 @@
 
-[![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent) [![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master)
-
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 vbvs.concurrent: Fitting Methods for the Functional Linear Concurrent Model.
 ----------------------------------------------------------------------------
+
+[![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent) [![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master)
 
 Author: Jeff Goldsmith
 
