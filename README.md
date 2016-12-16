@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-vbvs.concurrent: Fitting Methods for the Functional Linear Concurrent Model.
-----------------------------------------------------------------------------
+vbvs.concurrent: Fitting Methods for the Functional Linear Concurrent Model
+---------------------------------------------------------------------------
 
 [![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent) [![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master)
 
@@ -37,8 +37,7 @@ Interactive plotting is implemented through [refund.shiny](https://github.com/re
 The code below simulates a dataset under the functional linear concurrent model. For each of 50 subjects, observations of two predictor functions and a response function are observed over times between 0 and 1. The predictors and the coefficients that relate them to the response vary over time.
 
 ``` r
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 
 ## set design elements
 set.seed(1)

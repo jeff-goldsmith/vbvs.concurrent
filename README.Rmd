@@ -56,8 +56,7 @@ Interactive plotting is implemented through [refund.shiny](https://github.com/re
 The code below simulates a dataset under the functional linear concurrent model. For each of 50 subjects, observations of two predictor functions and a response function are observed over times between 0 and 1. The predictors and the coefficients that relate them to the response vary over time. 
 
 ```{r simulate_data}
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 
 ## set design elements
 set.seed(1)
@@ -87,7 +86,6 @@ concurrent.data =
 The plot below shows the predictors and the response, highlighting four subjects.
 
 ```{r plot_data, fig.align='center', fig.height=3, fig.width=9, echo=FALSE}
-library(ggplot2)
 library(gridExtra)
 
 plot_function = function(value_var, data) {
