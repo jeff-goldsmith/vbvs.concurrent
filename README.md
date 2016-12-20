@@ -3,7 +3,7 @@
 vbvs.concurrent: Fitting Methods for the Functional Linear Concurrent Model
 ---------------------------------------------------------------------------
 
-[![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent) [![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master)
+[![](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent.svg?branch=master)](https://travis-ci.org/jeff-goldsmith/vbvs.concurrent) [![codecov.io](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent/coverage.svg?branch=master)](https://codecov.io/gh/jeff-goldsmith/vbvs.concurrent?branch=master) [![status](http://joss.theoj.org/papers/a3884174f17dbb9a695f7b8658887eff/status.svg)](http://joss.theoj.org/papers/a3884174f17dbb9a695f7b8658887eff)
 
 Author: Jeff Goldsmith
 
