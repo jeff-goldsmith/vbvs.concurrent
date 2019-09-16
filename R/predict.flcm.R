@@ -39,7 +39,7 @@ predict.flcm <- function(object, data.new = NULL, standardized = TRUE, ...) {
   }
   
   ## get coefficients for time on new dataset
-  beta.hat = coef(object, t.new = data.new[object$time.var][,1])
+  beta.hat = coef(object, t.new = pull(data.new, object$time.var))
   
   ## multiply each coefficient by each observed value; sum to get fitted value
 #  fitted = mutate(data.new, int = 1) %>% subset(select = c("int", trmstrings)) %>% 

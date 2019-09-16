@@ -16,6 +16,9 @@
 #' @param t.max maximum value to be evaluated on the time domain (useful if data are sparse and / or irregular). if `NULL`, taken to be maximum observed value.
 #' 
 #' @author Jeff Goldsmith \email{jeff.goldsmith@@columbia.edu}
+#' 
+#' @importFrom FNN knn.index knnx.index
+#' 
 #' @export
 cv_vbvs_concurrent = function(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 2, v0 = seq(0.01, .1, .01), v1 = 100, 
                               SEED = 1, standardized = FALSE, t.min = NULL, t.max = NULL){
@@ -25,20 +28,37 @@ cv_vbvs_concurrent = function(formula, id.var = NULL, data = NULL, Kt = 5, Kp = 
   set.seed(SEED)
   
   ## define folds
-  subjs = unique(data[id.var][,1])
+  subjs = unique(pull(data, id.var))
   groups = sample(subjs, length(subjs)) %>%
-    split(., ceiling(seq_along(.)/ (length(.)/ 5)  ))
+    split(., ceiling(seq_along(.) / (length(.) / 5)  ))
     
   for (FOLD in 1:5) {
 
-    data.train = filter(data, !(data[id.var][,1] %in% groups[[FOLD]]))
-    data.test = filter(data, data[id.var][,1] %in% groups[[FOLD]])
+    data.train = filter(data, !(pull(data, id.var) %in% groups[[FOLD]]))
+    data.test = filter(data, pull(data, id.var) %in% groups[[FOLD]])
   
     for (i.split in 1:length(v0)) {
       cat(paste0(i.split, ". "))
       fit.vbvs = vbvs_concurrent(formula = formula, id.var = id.var, data = data.train, Kt = Kt, Kp = Kp, v0 = v0[i.split], v1 = v1, 
                                  standardized = standardized, t.min = t.min, t.max = t.max)
       fitted.test.vbvs = predict(fit.vbvs, data = data.test, standardized = standardized)
+      
+      ## if variables aren't standardised, need to standardize response in data.test using values in data.train
+      
+      if (!standardized) {
+        time.var = fit.vbvs$time.var
+        
+        t.original = pull(data.train, time.var)
+        t.new = pull(data.test, time.var)
+        knn.index.new = as.data.frame(t(knnx.index(t.original, t.new, k = round(length(t.original)*.2))))
+        
+        covar.cur = pull(data.train, outcome.var)
+        
+        mean.fit.new = sapply(knn.index.new, function(u){mean(covar.cur[u])})
+        
+        data.test[outcome.var] = (data.test[outcome.var] - mean.fit.new)
+      }
+      
       OOS.sq.err[i.split, FOLD] = mean((data.test[outcome.var] - fitted.test.vbvs) ^ 2, na.rm = TRUE)
     }
   }
