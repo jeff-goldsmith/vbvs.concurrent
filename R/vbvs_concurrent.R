@@ -307,8 +307,8 @@ vbvs_concurrent = function(formula, id.var = NULL, data=NULL, Kt = 5, Kp = 2, v0
   rownames(beta.cur) = c(trmstrings)
   beta.cur = t(beta.cur) %>% as.data.frame() %>%
     mutate(t = time) %>% 
-    rename_(.dots = setNames(list("t"), time.var)) %>%
-    arrange_(time.var) %>% unique() %>%
+    rename(all_of(setNames("t", time.var))) %>%
+    arrange(.data[[time.var]]) %>% unique() %>%
     subset(select = c(time.var, trmstrings))
   
   ## export fitted values
